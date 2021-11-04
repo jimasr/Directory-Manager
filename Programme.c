@@ -2,8 +2,10 @@
 
 int main()
 {
-    for(int i = 0 ; i<=10;i++)
+    int nb;
+    printf("Rentrez un nombre : ");
+    scanf("%d",&nb);
+    for (int i = 0; i < nb; i++)
         printf("Salut mec!\n");
-    return 0;
-    
+    return 0; 
 }
