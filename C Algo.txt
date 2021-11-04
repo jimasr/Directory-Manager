@@ -1,0 +1,31 @@
+Projet SAE - ALGO C
+
+-https://perso.liris.cnrs.fr/samba-ndojh.ndiaye/fichiers/SAE
+
+Un csv test -> 5000 entrées (jeu de testes)
+"nom,prenom,ville,codepostal,tel,profession"
+
+Un programme pour consulter le ses données
+
+Affichage sur console
+
+fonctionnalité : 
+	- Ajout et surpression de données
+	- Rechercher une personne en fonction de sont nom/liste de client/code postal...
+	- Utilsiation de GIT
+
+Il y aura une scéance de presentation des fonctionnalités
+
+- A rendre pour le 14 janvier 2022 -
+
+Bareme : 
+	- Choix de l'algo			10pts
+	- Compraison theorique		5pts
+	- Comparaion pratique		4pts
+	- Recherche bibliographique 10pts
+
+2 rapports a rendre :
+	- Pourquoi cette algo (4pages max - 13/12)
+	- Compraison theorique avec un autre projet (5page max - 21/01)
+
+1 Rapport a presenter en anglais (peut etre)
