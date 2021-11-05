@@ -22,7 +22,7 @@ Bareme :
 	- Choix de l'algo			10pts
 	- Compraison theorique		5pts
 	- Comparaion pratique		4pts
-	- Recherche bibliographique 10pts
+	- Recherche bibliographique 1pts
 
 2 rapports a rendre :
 	- Pourquoi cette algo (4pages max - 13/12)
