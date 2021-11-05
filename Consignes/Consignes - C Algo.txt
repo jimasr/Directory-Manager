@@ -10,8 +10,12 @@ Un programme pour consulter le ses données
 Affichage sur console
 
 fonctionnalité : 
-	- Ajout et surpression de données
+	- Ajout et surpression de données 
+	- modification ( reecrire des données )
 	- Rechercher une personne en fonction de sont nom/liste de client/code postal...
+	- faire un filtre eg: [^J..] pour Jack  
+	- L’affichage du nombre et de la liste de tous les clients pour lesquels des données sontmanquantes dans l’annuaire
+	- La sauvegarde des données dans un fichier.
 	- Utilsiation de GIT
 
 Il y aura une scéance de presentation des fonctionnalités
