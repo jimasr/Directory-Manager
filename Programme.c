@@ -13,6 +13,8 @@ typedef struct StructureCSV{
 
 //--------Declaration des Prototypes de fonctions-------//
 
+void Pause();
+void Clear();
 void OuvertureCSV(Personne (*personne)[],int * nbrow);
 void Affichage(Personne *personne, int index);
 void Suppression(Personne (*personne)[], int index, int * nbrow);
@@ -21,6 +23,169 @@ void Empty(char chaine[]);
 void Modification(Personne *personne);
 void OriganisationCSV(Personne *personne,int colonne,char cara, int pos);
 int Selection(Personne (*personne)[],int * nbrow);
+void Sauvegarde(Personne (*personne)[],int nbrow);
+
+//--------Fonction main--------//
+int main(){
+
+	//Création d'un tableau contenant toutes les informations de toutes les personnes
+	Personne information[10000];
+	//Création du pointeur vers le tableau de structure
+	Personne (*pt_info)[] = &information;
+
+	int nbrow = 0;
+	//Création du pointeur vers le nombre de ligne
+	int *pt_row = &nbrow;
+
+	//Entées utilisateur
+	int reponse;
+
+	//Booléen qui fait boucler le programme
+	char programme = 1;
+
+	OuvertureCSV(pt_info, pt_row);
+
+	//------------Affichage Titre------------//
+
+	printf("\n\t\t--- Version 1 - Ouverture et Recherche dans un CSV ---\n\n");
+	
+	//Boucle le programme tant que l'utilisateur veux
+	while (programme == 1)
+	{
+		//------------Affichage Menu-------------//
+
+		//------------Menu principal-------------//
+		printf(" - Que voulez-vous faire ?\n");
+		printf("\t1. Rechercher une personne\n");
+		printf("\t2. Ajouter une personne\n");
+		printf("\t3. Trier l'annuaire\n");
+		printf("\t4. Sauvegarder\n");
+		printf("\t5. Quitter\n");
+		printf(" > ");
+		scanf("%d",&reponse);
+		fflush(stdin);
+
+		//------Switch de fonctionnalité------//
+		switch (reponse)
+		{
+		case 1:	
+			//--------Sous menu de recherche----------//
+			printf("\n\t----------------\n\n");
+
+			printf("\t1. Rechercher par index\n");
+			printf("\t2. Par Prenom\n");
+			printf("\t3. Par Nom\n");
+			printf("\t4. Par Ville\n");
+			printf("\t5. Par code postal\n");
+			printf("\t6. Par telephone\n");
+			printf("\t7. Par email\n");
+			printf("\t8. Retour\n");
+			printf(" > ");
+			scanf("%d",&reponse);
+			fflush(stdin);
+
+			//---------Switch de recherche--------//
+			switch(reponse){
+
+				//Recherche par index
+				case 1:
+					do{
+						printf("\nRentrez l'index de la personne dont vous voulez les informations (0 pour quitter) : ");
+						reponse = Selection(pt_info,pt_row);
+						if (reponse != 0){
+							printf("\n\t-- Recherche en cours --\n\n");
+							Affichage(&information[reponse-1],reponse);
+							Choix(pt_info,reponse-1, pt_row);
+							printf("\n");
+							Pause();
+							Clear();
+						}
+					}while(reponse != 0);
+					break;
+				
+				//Retour
+				case 8:break;
+
+				//Gestion d'erreur saisie
+				default:
+					printf("\n Une erreur s'est produite\n\n");
+
+			}
+			printf("\n > Retour au menu principal\n\n");
+			Pause();
+			Clear();
+
+			break;
+		case 4:
+			printf("\n- Voulez-vous sauvegarder toutes les modifications? (0 pour quitter et 1 pour sauvegarder)\n");
+			printf(" > ");
+			do
+			{
+				scanf("%d", &reponse);
+				if(reponse==1)
+				{
+					Sauvegarde(pt_info, nbrow);
+					printf("\nSauvegarde reussite!");
+				}
+				else
+				{
+					printf("\nUne erreur s'est produite");
+				}
+
+			}while(reponse!=0 && reponse!=1);
+			printf("\n > Retour au menu principal\n\n");
+			Pause();
+			Clear();
+			break;
+		//-------------Quitter------------//
+		case 5:
+			//Fin de la boucle programme
+			printf("\n - A bientot !\n\n");
+			programme = 0;
+			break;
+			
+		//-----Gestion d'erreur saisie----//
+		default:	
+			Clear();
+			printf("\nUne erreur s'est produite, veuillez rentrer un numero correct !\n\n");
+		}
+
+	}
+	//------La requete pour sauvegarder les modifications--//
+
+
+	//Arrêt du programme
+	return 0;
+}
+
+//------Detecte le systeme d'exploitation et adapte le commande systeme() en fonction de system------//
+
+void Clear()
+{
+	#if __APPLE__
+	    system("clear");
+	#elif _WIN32
+		system("cls")
+	#elif _WIN64
+		system("cls")
+	#elif __LINUX__
+		system("clear")
+	#endif
+
+}
+
+void Pause(){
+    #if __APPLE__
+        system("echo - Appuyez sur une touche -");
+        system("read touche");
+	#elif _WIN32
+        system("Pause. >nul | echo  - Appuyez sur une touche -");
+	#elif _WIN64
+        system("Pause. >nul | echo  - Appuyez sur une touche -");
+	#elif __LINUX__
+        system('read -n1 -r -p " - Appuyez sur un touche " - ');
+	#endif
+}
 
 //----------Fonction d'affichage d'une personne----------//
 void Affichage(Personne *personne, int index){
@@ -251,111 +416,27 @@ void Suppression(Personne (*personne)[], int index, int * nbrow){
 	*nbrow-=1;
 	printf("La personne %d vient d'etre supprimee [%d personnes restantes]\n",index+1, *nbrow);
 }
+//--------Fonction de sauvugarde---------//
+void Sauvegarde(Personne (*personne)[],int nbrow){
+	int i;
+	FILE *annuairecopy = fopen("./AnnuaireNew.csv","w");
 
-int main(){
-
-	//Création d'un tableau contenant toutes les informations de toutes les personnes
-	Personne information[10000];
-	//Création du pointeur vers le tableau de structure
-	Personne (*pt_info)[] = &information;
-
-	int nbrow = 0;
-	//Création du pointeur vers le nombre de ligne
-	int *pt_row = &nbrow;
-
-	//Entées utilisateur
-	int reponse;
-
-	//Booléen qui fait boucler le programme
-	char programme = 1;
-
-	OuvertureCSV(pt_info, pt_row);
-
-	//------------Affichage Titre------------//
-
-	printf("\n\t\t--- Version 1 - Ouverture et Recherche dans un CSV ---\n\n");
-
-	//Boucle le programme tant que l'utilisateur veux
-	while (programme == 1)
+	if(annuairecopy==NULL)
 	{
-		//------------Affichage Menu-------------//
-
-		//------------Menu principal-------------//
-		printf(" - Que voulez-vous faire ?\n");
-		printf("\t1. Rechercher une personne\n");
-		printf("\t2. Ajouter une personne\n");
-		printf("\t3. Trier l'annuaire\n");
-		printf("\t4. Quitter\n");
-		printf(" > ");
-		scanf("%d",&reponse);
-		fflush(stdin);
-
-		//------Switch de fonctionnalité------//
-		switch (reponse)
-		{
-		case 1:	
-			//--------Sous menu de recherche----------//
-			printf("\n\t----------------\n\n");
-
-			printf("\t1. Rechercher par index\n");
-			printf("\t2. Par Prenom\n");
-			printf("\t3. Par Nom\n");
-			printf("\t4. Par Ville\n");
-			printf("\t5. Par code postal\n");
-			printf("\t6. Par telephone\n");
-			printf("\t7. Par email\n");
-			printf("\t8. Retour\n");
-			printf(" > ");
-			scanf("%d",&reponse);
-			fflush(stdin);
-
-			//---------Switch de recherche--------//
-			switch(reponse){
-
-				//Recherche par index
-				case 1:
-					do{
-						printf("\nRentrez l'index de la personne dont vous voulez les informations (0 pour quitter) : ");
-						reponse = Selection(pt_info,pt_row);
-						if (reponse != 0){
-							printf("\n\t-- Recherche en cours --\n\n");
-							Affichage(&information[reponse-1],reponse);
-							Choix(pt_info,reponse-1, pt_row);
-							printf("\n");
-							system("Pause. >nul | echo  - Appuyez sur une touche -");
-							system("cls");
-						}
-					}while(reponse != 0);
-					break;
-				
-				//Retour
-				case 8:break;
-
-				//Gestion d'erreur saisie
-				default:
-					printf("\n Une erreur s'est produite\n\n");
-
-			}
-			printf("\n > Retour au menu principal\n\n");
-			system("Pause. >nul | echo  - Appuyez sur une touche -");
-			system("cls");
-			break;
-
-		//-------------Quitter------------//
-		case 4:
-			//Fin de la boucle programme
-			printf("\n - A bientot !\n\n");
-			programme = 0;
-			break;
-
-		//-----Gestion d'erreur saisie----//
-		default:	
-			system("cls");
-			printf("\nUne erreur s'est produite, veuillez rentrer un numero correct !\n\n");
-		}
-
+		//---------Operation echoué--------//
+        printf("Le fichier ne peut pas être crée\n");
+        exit(EXIT_FAILURE);
 	}
-
-	//Arrêt du programme
-	return 0;
+	for(i=0;i<=nbrow; i++)
+	{
+		fprintf(annuairecopy, "%s,",(*personne)[i].prenom);
+		fprintf(annuairecopy, "%s,",(*personne)[i].nom);
+		fprintf(annuairecopy, "%s,",(*personne)[i].ville);
+		fprintf(annuairecopy, "%s,",(*personne)[i].codepostal);
+		fprintf(annuairecopy, "%s,",(*personne)[i].tel);
+		fprintf(annuairecopy, "%s,",(*personne)[i].email);
+		fprintf(annuairecopy, "%s\n",(*personne)[i].profession);
+	}
+	fclose(annuairecopy);
 }
+
