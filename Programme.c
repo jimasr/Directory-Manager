@@ -13,6 +13,8 @@ typedef struct StructureCSV{
 
 //--------Declaration des Prototypes de fonctions-------//
 
+void Pause();
+void Clear();
 void OuvertureCSV(Personne (*personne)[],int * nbrow);
 void Affichage(Personne *personne, int index);
 void Suppression(Personne (*personne)[], int index, int * nbrow);
@@ -21,7 +23,36 @@ void Empty(char chaine[]);
 void Modification(Personne *personne);
 void OriganisationCSV(Personne *personne,int colonne,char cara, int pos);
 void ModifVal(Personne (*personne), int colonne);
+void Sauvegarde(Personne (*personne)[],int nbrow);
 int Selection(Personne (*personne)[],int * nbrow);
+
+//------Detecte le systeme d'exploitation et adapte le commande systeme() en fonction de system------//
+void Clear()
+{
+	#if __APPLE__
+	    system("clear");
+	#elif _WIN32
+		system("cls");
+	#elif _WIN64
+		system("cls");
+	#elif __LINUX__
+		system("clear");
+	#endif
+
+}
+
+void Pause(){
+    #if __APPLE__
+        system("echo - Appuyez sur une touche -");
+        system("read touche");
+	#elif _WIN32
+        system("Pause. >nul | echo  - Appuyez sur une touche -");
+	#elif _WIN64
+        system("Pause. >nul | echo  - Appuyez sur une touche -");
+	#elif __LINUX__
+        system('read -n1 -r -p " - Appuyez sur un touche " - ');
+	#endif
+}
 
 //----------Fonction d'affichage d'une personne----------//
 void Affichage(Personne *personne, int index){
@@ -231,6 +262,27 @@ void Suppression(Personne (*personne)[], int index, int * nbrow){
 	printf("La personne %d vient d'etre supprimee [%d personnes restantes]\n",index+1, *nbrow);
 }
 
+//--------Fonction de sauvugarde---------//
+void Sauvegarde(Personne (*personne)[],int nbrow){
+	int i;
+	FILE *annuairecopy = fopen("./AnnuaireNew.csv","w");
+	if(annuairecopy==NULL){
+		//---------Operation echoué--------//
+        printf("Le fichier ne peut pas être crée\n");
+        exit(EXIT_FAILURE);
+	}
+	for(i=0;i<=nbrow; i++){
+		fprintf(annuairecopy, "%s,",(*personne)[i].prenom);
+		fprintf(annuairecopy, "%s,",(*personne)[i].nom);
+		fprintf(annuairecopy, "%s,",(*personne)[i].ville);
+		fprintf(annuairecopy, "%s,",(*personne)[i].codepostal);
+		fprintf(annuairecopy, "%s,",(*personne)[i].tel);
+		fprintf(annuairecopy, "%s,",(*personne)[i].email);
+		fprintf(annuairecopy, "%s\n",(*personne)[i].profession);
+	}
+	fclose(annuairecopy);
+}
+
 //-------------Ajoute une nouvelle personne--------------//
 void Ajout(Personne (*personne)[], int *nbrow){
 
@@ -283,7 +335,7 @@ void ModifVal(Personne (*personne), int colonne){
 	OriganisationCSV(personne,colonne,'\0',i);
 }
 
-//--------------------Fonction principal-----------------//
+//--------Fonction main--------//
 int main(){
 
 	//Création d'un tableau contenant toutes les informations de toutes les personnes
@@ -306,7 +358,7 @@ int main(){
 	//------------Affichage Titre------------//
 
 	printf("\n\t\t--- Version 1 - Ouverture et Recherche dans un CSV ---\n\n");
-
+	
 	//Boucle le programme tant que l'utilisateur veux
 	while (programme == 1)
 	{
@@ -317,7 +369,8 @@ int main(){
 		printf("\t1. Rechercher une personne\n");
 		printf("\t2. Ajouter une personne\n");
 		printf("\t3. Trier l'annuaire\n");
-		printf("\t4. Quitter\n");
+		printf("\t4. Sauvegarder\n");
+		printf("\t5. Quitter\n");
 		printf(" > ");
 		scanf("%d",&reponse);
 		fflush(stdin);
@@ -325,7 +378,7 @@ int main(){
 		//------Switch de fonctionnalité------//
 		switch (reponse)
 		{
-		case 1: 
+		case 1:	
 			//--------Sous menu de recherche----------//
 			printf("\n\t----------------\n\n");
 
@@ -354,8 +407,8 @@ int main(){
 							Affichage(&information[reponse-1],reponse);
 							Choix(pt_info,reponse-1, pt_row);
 							printf("\n");
-							system("Pause. >nul | echo  - Appuyez sur une touche -");
-							system("cls");
+							Pause();
+							Clear();
 						}
 					}while(reponse != 0);
 					break;
@@ -369,29 +422,57 @@ int main(){
 
 			}
 			printf("\n > Retour au menu principal\n\n");
-			system("Pause. >nul | echo  - Appuyez sur une touche -");
-			system("cls");
+			Pause();
+			Clear();
+
 			break;
 
 		case 2:
 			printf("Creation d'un client : \n");
 			Ajout(pt_info,pt_row);
+			printf("\n > Retour au menu principal\n\n");
+			Pause();
+			Clear();
 
 			break;
-		//-------------Quitter------------//
+
 		case 4:
+			printf("\n- Voulez-vous sauvegarder toutes les modifications? (0 pour quitter et 1 pour sauvegarder)\n");
+			printf(" > ");
+			do
+			{
+				scanf("%d", &reponse);
+				if(reponse==1)
+				{
+					Sauvegarde(pt_info, nbrow);
+					printf("\nSauvegarde reussite!");
+				}
+				else
+				{
+					printf("\nUne erreur s'est produite");
+				}
+
+			}while(reponse!=0 && reponse!=1);
+			printf("\n > Retour au menu principal\n\n");
+			Pause();
+			Clear();
+			break;
+
+		//-------------Quitter------------//
+		case 5:
 			//Fin de la boucle programme
 			printf("\n - A bientot !\n\n");
 			programme = 0;
 			break;
-
+			
 		//-----Gestion d'erreur saisie----//
 		default:	
-			system("cls");
+			Clear();
 			printf("\nUne erreur s'est produite, veuillez rentrer un numero correct !\n\n");
 		}
 
 	}
+	//------La requete pour sauvegarder les modifications--//
 
 	//Arrêt du programme
 	return 0;
