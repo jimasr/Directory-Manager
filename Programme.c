@@ -165,11 +165,11 @@ void Clear()
 	#if __APPLE__
 	    system("clear");
 	#elif _WIN32
-		system("cls")
+		system("cls");
 	#elif _WIN64
-		system("cls")
+		system("cls");
 	#elif __LINUX__
-		system("clear")
+		system("clear");
 	#endif
 
 }
