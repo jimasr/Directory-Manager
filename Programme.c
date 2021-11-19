@@ -5,10 +5,10 @@
 //-----Declaration de la structures des informations-----//
 
 typedef struct StructureCSV{
-	char nom[35], prenom[35];
-	char ville[35], codepostal[6];
-	char tel[16], email[35];
-	char profession[35];
+	char nom[40], prenom[40];
+	char ville[40], codepostal[6];
+	char tel[16], email[40];
+	char profession[40];
 }Personne;
 
 //--------Declaration des Prototypes de fonctions-------//
@@ -20,6 +20,7 @@ void Choix(Personne (*personne)[], int index, int * nbrow);
 void Empty(char chaine[]);
 void Modification(Personne *personne);
 void OriganisationCSV(Personne *personne,int colonne,char cara, int pos);
+void ModifVal(Personne (*personne), int colonne);
 int Selection(Personne (*personne)[],int * nbrow);
 
 //----------Fonction d'affichage d'une personne----------//
@@ -206,35 +207,13 @@ void Modification(Personne *personne){
 
 		if (reponse<1 || reponse>8)
 			printf("Une erreur c'est produite, veuillez rentrez un nombre correct !");
-			
+
 	}while(reponse<1 || reponse>8);
 
 	//Si l'utilisateur ne veux pas quitter
 	if (reponse!=8){
-		//Utilise la taille de la variable nom, comme taille max
-		taille = sizeof((*personne).nom);
-
-		//Adapte la taille max a la taille de la variable codepostal
-		if (reponse==4)
-			taille = sizeof((*personne).codepostal);
-
-		//Adapte la taille max a la taille de la variable telephone
-		else if (reponse == 5)
-			taille = sizeof((*personne).tel);
-
 		printf("\nRentrez la nouvelle valeur : ");
-
-		//Boucle tante qu'il n'y a pas de retour chariot et que i est inférieur a la taille max
-		while(modif!='\n' && i<taille-1 ){
-			scanf("%c",&modif);
-			if (modif!='\n'){
-				OriganisationCSV(personne,reponse-1,modif,i);
-				i++;
-			}
-		}
-		fflush(stdin);
-		//Assigne le caractère null a la fin de la valeur
-		OriganisationCSV(personne,reponse-1,'\0',i);
+		ModifVal(personne, reponse-1);
 		printf("\nCette valeur a correctement ete assigne\n");
 	}
 
@@ -252,10 +231,63 @@ void Suppression(Personne (*personne)[], int index, int * nbrow){
 	printf("La personne %d vient d'etre supprimee [%d personnes restantes]\n",index+1, *nbrow);
 }
 
+//-------------Ajoute une nouvelle personne--------------//
+void Ajout(Personne (*personne)[], int *nbrow){
+
+	printf("Prenom : ");
+	ModifVal(&(*personne)[*nbrow],0);
+	printf("Nom : ");
+	ModifVal(&(*personne)[*nbrow],1);
+	printf("Ville : ");
+	ModifVal(&(*personne)[*nbrow],2);
+	printf("Code Postal : ");
+	ModifVal(&(*personne)[*nbrow],3);
+	printf("Telephone : ");
+	ModifVal(&(*personne)[*nbrow],4);
+	printf("Email : ");
+	ModifVal(&(*personne)[*nbrow],5);
+	printf("Profesion : ");
+	ModifVal(&(*personne)[*nbrow],6);
+	*nbrow +=1;
+
+	printf("Cette personne a ete rajoutee !\n");
+}
+
+//---------Modifie la valeur d'une des colonnes----------//
+void ModifVal(Personne (*personne), int colonne){
+	int i = 0;
+	char modif;
+	char taille;
+
+	//Utilise la taille de la variable nom, comme taille max
+	taille = sizeof((*personne).nom);
+
+	//Adapte la taille max a la taille de la variable codepostal
+	if (colonne==3)
+		taille = sizeof((*personne).codepostal);
+
+	//Adapte la taille max a la taille de la variable telephone
+	else if (colonne == 4)
+		taille = sizeof((*personne).tel);
+
+	//Boucle tante qu'il n'y a pas de retour chariot et que i est inférieur a la taille max
+	while(modif!='\n' && i<taille-1 ){
+		scanf("%c",&modif);
+		if (modif!='\n'){
+			OriganisationCSV(personne,colonne,modif,i);
+			i++;
+		}
+	}
+	fflush(stdin);
+	//Assigne le caractère null a la fin de la valeur
+	OriganisationCSV(personne,colonne,'\0',i);
+}
+
+//--------------------Fonction principal-----------------//
 int main(){
 
 	//Création d'un tableau contenant toutes les informations de toutes les personnes
-	Personne information[10000];
+	Personne information[7000];
 	//Création du pointeur vers le tableau de structure
 	Personne (*pt_info)[] = &information;
 
@@ -293,7 +325,7 @@ int main(){
 		//------Switch de fonctionnalité------//
 		switch (reponse)
 		{
-		case 1:	
+		case 1: 
 			//--------Sous menu de recherche----------//
 			printf("\n\t----------------\n\n");
 
@@ -341,6 +373,11 @@ int main(){
 			system("cls");
 			break;
 
+		case 2:
+			printf("Creation d'un client : \n");
+			Ajout(pt_info,pt_row);
+
+			break;
 		//-------------Quitter------------//
 		case 4:
 			//Fin de la boucle programme
