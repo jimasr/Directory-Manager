@@ -24,9 +24,11 @@ void Modification(Personne *personne);
 void OriganisationCSV(Personne *personne,int colonne,char cara, int pos);
 int Selection(Personne (*personne)[],int * nbrow);
 void Sauvegarde(Personne (*personne)[],int nbrow);
+void Filtre(Personne (*personne)[], int nbrow, int choix);
 
-//--------Fonction main--------//
-int main(){
+	//--------Fonction main--------//
+	int main()
+{
 
 	//Création d'un tableau contenant toutes les informations de toutes les personnes
 	Personne information[10000];
@@ -102,7 +104,10 @@ int main(){
 						}
 					}while(reponse != 0);
 					break;
-				
+				case 2: case 3: case 4: case 5: case 6: case 7:
+					Clear();
+					Filtre(pt_info, nbrow, reponse-1);
+					break;
 				//Retour
 				case 8:break;
 
@@ -162,14 +167,10 @@ int main(){
 
 void Clear()
 {
-	#if __APPLE__
-	    system("clear");
-	#elif _WIN32
-		system("cls");
-	#elif _WIN64
-		system("cls");
-	#elif __LINUX__
+	#if __APPLE__ && __LINUX__
 		system("clear");
+	#elif _WIN32 && _WIN64
+		system("cls");
 	#endif
 
 }
@@ -440,3 +441,58 @@ void Sauvegarde(Personne (*personne)[],int nbrow){
 	fclose(annuairecopy);
 }
 
+void Filtre(Personne (*personne)[], int nbrow, int choix)
+{
+	int ligne, colonne, programme, compteur;
+	char cherchant[50];
+	printf("Veuillez entrer les mots que vous voulez chercher\n");
+	printf(" > ");
+	fgets(cherchant, 50, stdin);
+
+	switch (choix)
+	{
+		case 1:
+			for (colonne=0; colonne<=nbrow; colonne++)
+			{	
+				programme = 1; //-----Reset programme à 1 à chaque fois, sinon programme reste 0 si c'est fause------//
+				ligne = 0;
+				do
+				{
+					if ((*personne)[colonne].prenom[ligne] == cherchant[ligne])
+					{
+						ligne++;
+					}
+					else programme = 0;
+				} while (cherchant[ligne]!='\n' && programme==1);
+				if(programme == 1) 
+				{
+					printf("-------------------------------------------------------------");
+					printf("\n%s\n",(*personne)[colonne].prenom);
+					printf("%s\n", (*personne)[colonne].nom);
+					printf("%s\n", (*personne)[colonne].ville);
+					printf("%s\n", (*personne)[colonne].codepostal);
+					printf("%s\n", (*personne)[colonne].tel);
+					printf("%s\n", (*personne)[colonne].email);
+					printf("%s\n", (*personne)[colonne].profession);
+					printf("-------------------------------------------------------------");
+				}
+				
+			}
+
+			break;
+
+			// case 2:
+			// 	break;
+			// case 3:
+			// 	break;
+			// case 4:
+			// 	break;
+			// case 5:
+			// 	break;
+			// case 6:
+			// 	break;
+			// case 7:
+			// 	break;
+	}
+
+}
