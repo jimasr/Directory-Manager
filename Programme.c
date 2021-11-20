@@ -21,33 +21,25 @@ void Suppression(Personne (*personne)[], int index, int * nbrow);
 void Choix(Personne (*personne)[], int index, int * nbrow);
 void Empty(char chaine[]);
 void Modification(Personne *personne);
-void OriganisationCSV(Personne *personne,int colonne,char cara, int pos);
 void ModifVal(Personne (*personne), int colonne);
 void Sauvegarde(Personne (*personne)[],int nbrow);
+char * OriganisationCSV(Personne *personne,int colonne);
 int Selection(Personne (*personne)[],int * nbrow);
 
-//------Detecte le systeme d'exploitation et adapte le commande systeme() en fonction de system------//
-void Clear()
-{
-	#if __APPLE__
-	    system("clear");
-	#elif _WIN32
+//------Detecte le systeme d'exploitation et adapte le commande systeme() en fonction du systeme------//
+void Clear(){
+	#if _WIN32 && _WIN64
 		system("cls");
-	#elif _WIN64
-		system("cls");
-	#elif __LINUX__
+	#else
 		system("clear");
 	#endif
-
 }
 
 void Pause(){
     #if __APPLE__
         system("echo - Appuyez sur une touche -");
         system("read touche");
-	#elif _WIN32
-        system("Pause. >nul | echo  - Appuyez sur une touche -");
-	#elif _WIN64
+	#elif _WIN32 && _WIN64
         system("Pause. >nul | echo  - Appuyez sur une touche -");
 	#elif __LINUX__
         system('read -n1 -r -p " - Appuyez sur un touche " - ');
@@ -127,12 +119,12 @@ void OuvertureCSV(Personne (*personne)[],int * nbrow){
 			//Considère une nouvelle colonne à chaque ',' et exclu le retour chariot
 			if(ligne[i]==',' || ligne[i]=='\n'){
 				//Assigne le caractère null a la fin de chaque valeurs
-				OriganisationCSV(&(*personne)[*nbrow],column,'\0',j);
+				OriganisationCSV(&(*personne)[*nbrow],column)[j] = '\0';
 				j = 0;
 				column++;
 			}else{
 				//Assigne le caractère actuel à sa colonne
-				OriganisationCSV(&(*personne)[*nbrow],column,ligne[i],j);
+				OriganisationCSV(&(*personne)[*nbrow],column)[j] = ligne[i];
 				j++;
 			}
 		}
@@ -145,23 +137,23 @@ void OuvertureCSV(Personne (*personne)[],int * nbrow){
 
 }
 
-//-----Assigne un caractère a sa colonne dans le CSV-----//
-void OriganisationCSV(Personne *personne,int colonne,char cara, int pos){
+//-Renvoie l'adresse de la valeur associée a la colonne--//
+char * OriganisationCSV(Personne *personne,int colonne){
 	switch(colonne){
 		case 0:
-			(*personne).prenom[pos] = cara;     break;
+			return (*personne).prenom;
 		case 1:
-			(*personne).nom[pos] = cara;        break;
+			return (*personne).nom;
 		case 2:
-			(*personne).ville[pos] = cara;      break;
+			return (*personne).ville;
 		case 3:
-			(*personne).codepostal[pos] = cara; break;
+			return (*personne).codepostal;
 		case 4:
-			(*personne).tel[pos] = cara;        break;
+			return (*personne).tel;
 		case 5:
-			(*personne).email[pos] = cara;      break;
+			return (*personne).email;
 		case 6:
-			(*personne).profession[pos] = cara; break;
+			return (*personne).profession;
 	}
 }
 
@@ -262,7 +254,7 @@ void Suppression(Personne (*personne)[], int index, int * nbrow){
 	printf("La personne %d vient d'etre supprimee [%d personnes restantes]\n",index+1, *nbrow);
 }
 
-//--------Fonction de sauvugarde---------//
+//--------------Fonction de sauvegarde-------------------//
 void Sauvegarde(Personne (*personne)[],int nbrow){
 	int i;
 	FILE *annuairecopy = fopen("./AnnuaireNew.csv","w");
@@ -284,29 +276,29 @@ void Sauvegarde(Personne (*personne)[],int nbrow){
 }
 
 //-------------Ajoute une nouvelle personne--------------//
-void Ajout(Personne (*personne)[], int *nbrow){
+void Ajout(Personne * personne, int *nbrow){
 
 	printf("Prenom : ");
-	ModifVal(&(*personne)[*nbrow],0);
+	ModifVal(&(*personne),0);
 	printf("Nom : ");
-	ModifVal(&(*personne)[*nbrow],1);
+	ModifVal(&(*personne),1);
 	printf("Ville : ");
-	ModifVal(&(*personne)[*nbrow],2);
+	ModifVal(&(*personne),2);
 	printf("Code Postal : ");
-	ModifVal(&(*personne)[*nbrow],3);
+	ModifVal(&(*personne),3);
 	printf("Telephone : ");
-	ModifVal(&(*personne)[*nbrow],4);
+	ModifVal(&(*personne),4);
 	printf("Email : ");
-	ModifVal(&(*personne)[*nbrow],5);
+	ModifVal(&(*personne),5);
 	printf("Profesion : ");
-	ModifVal(&(*personne)[*nbrow],6);
+	ModifVal(&(*personne),6);
 	*nbrow +=1;
 
 	printf("Cette personne a ete rajoutee !\n");
 }
 
 //---------Modifie la valeur d'une des colonnes----------//
-void ModifVal(Personne (*personne), int colonne){
+void ModifVal(Personne * personne , int colonne){
 	int i = 0;
 	char modif;
 	char taille;
@@ -323,16 +315,16 @@ void ModifVal(Personne (*personne), int colonne){
 		taille = sizeof((*personne).tel);
 
 	//Boucle tante qu'il n'y a pas de retour chariot et que i est inférieur a la taille max
-	while(modif!='\n' && i<taille-1 ){
+	while(modif!='\n' && i<taille-1){
 		scanf("%c",&modif);
 		if (modif!='\n'){
-			OriganisationCSV(personne,colonne,modif,i);
+			OriganisationCSV(personne,colonne)[i] = modif;
 			i++;
 		}
 	}
 	fflush(stdin);
 	//Assigne le caractère null a la fin de la valeur
-	OriganisationCSV(personne,colonne,'\0',i);
+	OriganisationCSV(personne,colonne)[i] = '\0';
 }
 
 //--------Fonction main--------//
@@ -429,7 +421,7 @@ int main(){
 
 		case 2:
 			printf("Creation d'un client : \n");
-			Ajout(pt_info,pt_row);
+			Ajout(&information[nbrow],pt_row);
 			printf("\n > Retour au menu principal\n\n");
 			Pause();
 			Clear();
