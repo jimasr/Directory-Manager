@@ -2,14 +2,19 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define taille 30
+#define tailletel 16
+#define taillecodep 6
+#define tailleemail	60
+
 //-----Declaration de la structures des informations-----//
 
 typedef struct StructureCSV
 {
-	char nom[50], prenom[50];
-	char ville[50], codepostal[6];
-	char tel[16], email[50];
-	char profession[50];
+	char prenom[taille], nom[taille];
+	char ville[taille], codepostal[taillecodep];
+	char tel[tailletel], email[tailleemail];
+	char profession[taille];
 } Personne;
 
 
@@ -21,13 +26,16 @@ void OuvertureCSV(Personne (*personne)[],int * nbrow);
 void Affichage(Personne *personne, int index, char mode);
 void Suppression(Personne (*personne)[], int index, int * nbrow);
 void Choix(Personne (*personne)[], int index, int * nbrow);
-void Empty(char * chaine, char formatage);
+void Empty(char * chaine, unsigned char formatage);
 void Modification(Personne *personne);
 void ModifVal(Personne(*personne), int colonne);
 void Sauvegarde(Personne (*personne)[], int nbrow);
 void Filtre(Personne (*personne)[], int nbrow, int choix);
 void Ajout(Personne *personne, int *nbrow);
 char *OriganisationCSV(Personne *personne, int colonne);
+char Minuscule(char lettre);
+void stdclean();
+void Triage(Personne(*personne)[],int nbrow);
 
 //------Detecte le systeme d'exploitation et adapte le commande systeme() en fonction du systeme------//
 void Clear(){
@@ -39,14 +47,24 @@ void Clear(){
 }
 
 void Pause(){
-    #if __APPLE__
-        system("echo - Appuyez sur une touche -");
-        system("read touche");
+	#if __APPLE__
+		system("echo - Appuyez sur une touche -");
+		system("read touche");
 	#elif _WIN32 || _WIN64
-        system("Pause. >nul | echo  - Appuyez sur une touche -");
-	#elif __LINUX__
-        system('read -n1 -r -p " - Appuyez sur un touche " - ');
+		system("Pause. >nul | echo  - Appuyez sur une touche -");
+	#elif unix
+		system('read -n1 -r -p " - Appuyez sur un touche " - ');
 	#endif
+}
+
+unsigned char Taille(char colonne){
+	if (colonne == 3)
+		return taillecodep;
+	if (colonne == 4)
+		return tailletel;
+	if (colonne == 5)
+		return tailleemail;
+	return taille;
 }
 
 //----------Fonction d'affichage d'une personne----------//
@@ -80,31 +98,29 @@ void Affichage(Personne *personne, int index,char mode){
 		Empty((*personne).email,0);
 	}else{
 		printf("Personne %d : ", index+1);
-		Empty((*personne).nom,1);
-		Empty((*personne).prenom,1);
-		Empty((*personne).ville,1);
-		Empty((*personne).profession,1);
-		Empty((*personne).tel,1);
+		Empty((*personne).nom,taille);
+		Empty((*personne).prenom,taille);
+		Empty((*personne).ville,taille);
+		Empty((*personne).tel,tailletel);
 	}
 
 	printf("\n");
 }
 
 //---Fonction qui affiche N/A quand pas d'information----//
-void Empty(char * chaine, char formatage){
-	int taille = 25;
+void Empty(char * chaine, unsigned char formatage){
 	if (strlen(chaine) > 0){
 		printf("%s", chaine);
-		if (formatage==1){
-			for(int i=strlen(chaine); i<taille;i++)
+		if (formatage>0){
+			for(int i=strlen(chaine); i<formatage;i++)
 				printf(" ");
 			printf(" | ");
 		}
 	}
 	else{
 		printf("N/A");
-		if (formatage==1){
-			for(int i=3; i<taille;i++)
+		if (formatage>0){
+			for(int i=3; i<formatage;i++)
 				printf(" ");
 			printf(" | ");
 		}
@@ -189,21 +205,21 @@ char *OriganisationCSV(Personne *personne, int colonne){
 }
 
 //----Vérifie l'appartenance d'un index à l'annuaire-----//
-int Selection(Personne (*personne)[], int *nbrow){
+int Selection(Personne personne[], int nbrow){
 	int index = 0;
 	do
 	{
 		printf(" > ");
 		scanf("%d", &index);
-		fflush(stdin);
+		stdclean(stdin);
 		if (index < 0)
 			printf("\tUne erreur s'est produite, veuillez rentrer un nombre correct.\n");
-		else if (index > *nbrow)
+		else if (index > nbrow)
 		{
-			printf("\tAttention, la valeur %d est trop eleve, [%d personnes renseignees]\n", index, *nbrow);
+			printf("\tAttention, la valeur %d est trop eleve, [%d personnes renseignees]\n", index, nbrow);
 		}
 
-	} while (index < 0 || index > *nbrow);
+	} while (index < 0 || index > nbrow);
 
 	//Retourne un nombre entre 0 et le nombre de ligne
 	return index;
@@ -221,7 +237,7 @@ void Choix(Personne (*personne)[], int index, int *nbrow){
 		printf("\t3. Retour\n");
 		printf(" > ");
 		scanf("%d", &reponse);
-		fflush(stdin);
+		stdclean(stdin);
 
 		//Menu des choix
 		switch (reponse)
@@ -246,7 +262,6 @@ void Choix(Personne (*personne)[], int index, int *nbrow){
 void Modification(Personne *personne){
 	int reponse;
 	int i = 0;
-	int taille;
 	char modif;
 	do
 	{
@@ -262,7 +277,7 @@ void Modification(Personne *personne){
 		printf("\t8. Retour\n");
 		printf(" > ");
 		scanf("%d", &reponse);
-		fflush(stdin);
+		stdclean(stdin);
 
 		if (reponse < 1 || reponse > 8)
 			printf("Une erreur c'est produite, veuillez rentrez un nombre correct !");
@@ -315,26 +330,67 @@ void Sauvegarde(Personne (*personne)[], int nbrow){
 void Filtre(Personne (*personne)[], int nbrow, int choix){
 	int ligne;
 	int compteur=0;
-	char programme,colonne;
+	char verif,colonne;
 	char recherche[50];
-	printf("Veuillez entrer les donnees que vous voulez chercher > ");
-	fgets(recherche, sizeof(recherche), stdin);
-	printf("\n");
+	char type;
 
-	for (ligne = 0; ligne <= nbrow; ligne++)
+	do{
+		printf("\nVeuillez entrer les donnees que vous voulez chercher > ");
+		fgets(recherche,sizeof(recherche),stdin);
+		recherche[strlen(recherche)-1] = '\0';
+		if (strlen(recherche)==0)
+			printf("\nVeuillez rentrez une valeur correcte \n");
+	}while(strlen(recherche)==0);
+
+	if (recherche[0] == '*' && strlen(recherche)==1)
+		type = 0;
+	else if (recherche[strlen(recherche)-1] == '*')
 	{
-		//-----Reset programme à 1 à chaque fois, sinon programme reste 0 si c'est fause------//
-		programme = 1; 
-		colonne=0;
-		do
-		{
-			if (OriganisationCSV(&(*personne)[ligne], choix)[colonne] == recherche[colonne])
-			{
-				colonne++;
-			}
-			else programme = 0;
-		} while (recherche[colonne] != '\n' && programme == 1);
-		if (programme == 1){
+		recherche[strlen(recherche)-1] = '\0';
+		if (recherche[0] == '*')
+			type = 3;
+			//A decaler
+		else
+			type = 2;
+	}
+	else if(recherche[0] == '*')
+		type = 4;
+	else
+		type=1;
+
+	//
+	//	Type 0 : Affiche tout (*)
+	//	Type 1 : recherche exacte (xxx)
+	//	Type 2 : recherche par Filtre (xxx*)
+	//	Type 3 : Recherche par composé de   (*xxx*)
+	//	Type 4 : Recherche pas commencement (*xxx)
+	//
+
+	for (ligne = 0; ligne < nbrow; ligne++)
+	{
+
+		if (type ==0)
+			verif = 1;
+
+		else if (type == 2){
+			verif = 1;
+			colonne=0;
+			do{
+				if (Minuscule(OriganisationCSV(&(*personne)[ligne], choix)[colonne]) == Minuscule(recherche[colonne]))
+					colonne++;
+				else
+					verif = 0;
+			} while (recherche[colonne] != '\0' && verif == 1);
+		}
+
+		else if (type==1){
+			verif = 0;
+			if (strcasecmp(OriganisationCSV(&(*personne)[ligne], choix),recherche)==0)
+				verif = 1;
+		}
+
+		//Affichage de la personne trouvée
+		if (verif == 1){
 			Affichage(&(*personne)[ligne],ligne,0);
 			compteur++;
 		}
@@ -347,19 +403,19 @@ void Filtre(Personne (*personne)[], int nbrow, int choix){
 void Ajout(Personne *personne, int *nbrow){
 
 	printf("Prenom : ");
-	ModifVal(&(*personne), 0);
+	ModifVal(personne, 0);
 	printf("Nom : ");
-	ModifVal(&(*personne), 1);
+	ModifVal(personne, 1);
 	printf("Ville : ");
-	ModifVal(&(*personne), 2);
+	ModifVal(personne, 2);
 	printf("Code Postal : ");
-	ModifVal(&(*personne), 3);
+	ModifVal(personne, 3);
 	printf("Telephone : ");
-	ModifVal(&(*personne), 4);
+	ModifVal(personne, 4);
 	printf("Email : ");
-	ModifVal(&(*personne), 5);
+	ModifVal(personne, 5);
 	printf("Profesion : ");
-	ModifVal(&(*personne), 6);
+	ModifVal(personne, 6);
 	*nbrow += 1;
 
 	printf("Cette personne a ete rajoutee !\n");
@@ -369,21 +425,9 @@ void Ajout(Personne *personne, int *nbrow){
 void ModifVal(Personne *personne, int colonne){
 	int i = 0;
 	char modif;
-	char taille;
-
-	//Utilise la taille de la variable nom, comme taille max
-	taille = sizeof((*personne).nom);
-
-	//Adapte la taille max a la taille de la variable codepostal
-	if (colonne == 3)
-		taille = sizeof((*personne).codepostal);
-
-	//Adapte la taille max a la taille de la variable telephone
-	else if (colonne == 4)
-		taille = sizeof((*personne).tel);
 
 	//Boucle tante qu'il n'y a pas de retour chariot et que i est inférieur a la taille max
-	while (modif != '\n' && i < taille - 1)
+	while (modif != '\n' && i < Taille(colonne) - 1)
 	{
 		scanf("%c", &modif);
 		if (modif != '\n')
@@ -392,7 +436,7 @@ void ModifVal(Personne *personne, int colonne){
 			i++;
 		}
 	}
-	fflush(stdin);
+	stdclean(stdin);
 	//Assigne le caractère null a la fin de la valeur
 	OriganisationCSV(personne, colonne)[i] = '\0';
 }
@@ -419,6 +463,37 @@ void Manque(Personne (*personne)[], int nbrow){
 	printf("\n\t - %d personnes avec des donnees manquantes trouvees - \n\n",cpt);
 }
 
+char Minuscule(char lettre){
+	if (lettre>='A' && lettre<='Z')
+		return lettre+32;
+	return lettre;
+}
+
+void Triage(Personne(*personne)[],int nbrow){
+	int j;
+	int i;
+	Personne ppt;
+	i=1;
+	while (i < nbrow-1)
+	{		
+		ppt = (*personne)[i];
+		j=i-1;
+		while (j>=0 && strcasecmp((*personne)[j].nom,ppt.nom)>0)
+		{
+			(*personne)[j+1]=(*personne)[j];
+			j=j-1;
+		}
+		(*personne)[j+1]=ppt;
+		i++;
+	}
+}
+
+void stdclean(){
+	char c = 0;
+	while (c != '\n' && c != EOF)
+		c = getchar();
+}
+   
 //--------------------Fonction main----------------------//
 int main(){
 
@@ -433,11 +508,13 @@ int main(){
 
 	//Entées utilisateur
 	int reponse;
+	int select;
 
 	//Booléen qui fait boucler le programme
 	char programme = 1;
 
 	OuvertureCSV(pt_info, pt_row);
+	Triage(pt_info,nbrow);
 
 	//------------Affichage Titre------------//
 
@@ -457,72 +534,61 @@ int main(){
 		printf("\t5. Quitter\n");
 		printf(" > ");
 		scanf("%d", &reponse);
-		fflush(stdin);
+		stdclean();
 
 		//------Switch de fonctionnalité------//
 		switch (reponse)
 		{
 		case 1:
-			//--------Sous menu de recherche----------//
-			printf("\n\t----------------\n\n");
+			do{
+				//--------Sous menu de recherche----------//
+				printf("\n\t----------------\n\n");
 
-			printf("\t1. Rechercher par index\n");
-			printf("\t2. Client avec des elements manquants\n");
-			printf("\t3. Par Prenom\n");
-			printf("\t4. Par Nom\n");
-			printf("\t5. Par Ville\n");
-			printf("\t6. Par code postal\n");
-			printf("\t7. Par telephone\n");
-			printf("\t8. Par email\n");
-			printf("\t9. Par profession\n");
-			printf("\t10. Retour\n");
-			printf(" > ");
-			scanf("%d", &reponse);
-			fflush(stdin);
+				printf("\t1. Rechercher par index\n");
+				printf("\t2. Client avec des elements manquants\n");
+				printf("\t3. Par Prenom\n");
+				printf("\t4. Par Nom\n");
+				printf("\t5. Par Ville\n");
+				printf("\t6. Par code postal\n");
+				printf("\t7. Par telephone\n");
+				printf("\t8. Par email\n");
+				printf("\t9. Par profession\n");
+				printf("\t10. Retour\n");
+				printf(" > ");
+				scanf("%d", &reponse);
+				stdclean(stdin);
 
-			//---------Switch de recherche--------//
-			switch(reponse){
+				printf("nbligne : %d\n",nbrow);
 
-			//Recherche par index
-			case 1:
-				do
-				{
-					printf("\nRentrez l'index de la personne dont vous voulez les informations (0 pour quitter) : ");
-					reponse = Selection(pt_info, pt_row);
-					if (reponse != 0)
+				//---------options de recherches--------//
+				if(reponse == 1){
+					do
 					{
-						printf("\n\t-- Recherche en cours --\n\n");
-						Affichage(&information[reponse - 1], reponse,1);
-						Choix(pt_info, reponse - 1, pt_row);
-						printf("\n");
-						Pause();
-						Clear();
-					}
-				} while (reponse != 0);
-				break;
-			case 2:
-				Manque(pt_info, nbrow);
-				break;
+						printf("\nRentrez l'index de la personne dont vous voulez les informations (0 pour quitter) : ");
+						printf("%d\n",nbrow);
+						select = Selection(information, nbrow);
+						
+						if (select != 0)
+						{
+							select--;
+							printf("\n\t-- Recherche en cours --\n\n");
+							Affichage(&information[select], select, 1);
+							Choix(pt_info, select, pt_row);
+							printf("\n");
+							Pause();
+							Clear();
+						}
+					} while (select != 0);
+				}
+				else if(reponse >=3 && reponse<=9){
+					Clear();
+					Filtre(pt_info, nbrow, reponse - 3);
+				}
+				else if(reponse!=10){
+					printf("\n Une erreur s'est produite\n\n");
+				}
+			}while(reponse != 10);
 
-			case 3:
-			case 4:
-			case 5:
-			case 6:
-			case 7:
-			case 8:
-			case 9:
-				Clear();
-				Filtre(pt_info, nbrow, reponse - 3);
-				break;
-
-			//Retour
-			case 10:
-				break;
-
-			//Gestion d'erreur saisie
-			default:
-				printf("\n Une erreur s'est produite\n\n");
-			}
 			printf("\n > Retour au menu principal\n\n");
 			Pause();
 			Clear();
