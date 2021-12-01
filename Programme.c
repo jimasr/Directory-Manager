@@ -330,6 +330,7 @@ void Sauvegarde(Personne (*personne)[], int nbrow){
 void Filtre(Personne (*personne)[], int nbrow, int choix){
 	int ligne;
 	int compteur=0;
+	int i;
 	char verif,colonne;
 	char recherche[50];
 	char type;
@@ -348,13 +349,19 @@ void Filtre(Personne (*personne)[], int nbrow, int choix){
 	{
 		recherche[strlen(recherche)-1] = '\0';
 		if (recherche[0] == '*')
+		{
 			type = 3;
-			//A decaler
+			//--Decaler et ecraser l'etoile--//
+			for (i = 0; i < strlen(recherche); i++) recherche[i] = recherche[i + 1];
+		}
 		else
 			type = 2;
 	}
 	else if(recherche[0] == '*')
+	{
 		type = 4;
+		for (i = 0; i < strlen(recherche); i++) recherche[i] = recherche[i + 1];
+	}
 	else
 		type=1;
 
@@ -388,6 +395,57 @@ void Filtre(Personne (*personne)[], int nbrow, int choix){
 			if (strcasecmp(OriganisationCSV(&(*personne)[ligne], choix),recherche)==0)
 				verif = 1;
 		}
+
+		else if (type==3){
+			int inclus;
+			verif = 0;
+			//---Si les deux chaines sont vides-----//
+			if (OriganisationCSV(&(*personne)[ligne], choix)[0] == '\0' && recherche[0] == '\0')
+				verif = 1;
+			else
+			{
+				colonne = 0;
+				while (OriganisationCSV(&(*personne)[ligne], choix)[colonne] != '\0' && verif == 0)
+				{
+					//---- Chercher le premier caractère de recherche dans tableau personne ------//
+					while (OriganisationCSV(&(*personne)[ligne], choix)[colonne] != '\0' && OriganisationCSV(&(*personne)[ligne], choix)[colonne] != recherche[0]) colonne++;
+					//--- Si le premier caractère est trouvé, chercher le reste -----//
+					if (OriganisationCSV(&(*personne)[ligne], choix)[colonne] == recherche[0])
+					{
+						inclus = 1;
+						i = 1;
+						colonne++;
+						//---Boucle pour verifier la prochaine char est s'il est toujours inclus ou pas--//
+						while (inclus == 1 && recherche[i] != '\0') 
+						{
+							if (recherche[i] != OriganisationCSV(&(*personne)[ligne], choix)[colonne])
+								inclus = 0;
+							i++;
+							colonne++;
+						}
+						if (inclus == 1)
+							verif = 1;
+					}
+				}
+			}
+		}
+		else if (type==4){
+			verif = 1;
+			//--commencer depuis la fin--//
+			colonne = strlen(OriganisationCSV(&(*personne)[ligne], choix)) - 1;
+			i = strlen(recherche) - 1;
+			do
+			{
+				if (recherche[i] == OriganisationCSV(&(*personne)[ligne], choix)[colonne])
+				{
+					colonne--;
+					i--;
+				}
+				else
+					verif = 0;
+			} while (colonne >= 0 && i >= 0 && verif == 1);
+		}
+		
 
 		//Affichage de la personne trouvée
 		if (verif == 1){
