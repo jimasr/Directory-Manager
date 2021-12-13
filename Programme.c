@@ -35,7 +35,11 @@ void Ajout(Personne *personne, int *nbrow);
 char *OriganisationCSV(Personne *personne, int colonne);
 char Minuscule(char lettre);
 void stdclean();
-void Triage(Personne(*personne)[],int nbrow);
+void Tri_insertion(Personne tab[],int nbrow);
+void Tri_selection(Personne tab[], int nbligne);
+void Tri_bulle(Personne tab[], int nbligne);
+void Tri_indirect(Personne tab[], int indice[], int nbligne);
+void Tri_shell(Personne tab[],int nbligne);
 
 //------Detecte le systeme d'exploitation et adapte le commande systeme() en fonction du systeme------//
 void Clear(){
@@ -211,7 +215,7 @@ int Selection(Personne personne[], int nbrow){
 	{
 		printf(" > ");
 		scanf("%d", &index);
-		stdclean(stdin);
+		stdclean();
 		if (index < 0)
 			printf("\tUne erreur s'est produite, veuillez rentrer un nombre correct.\n");
 		else if (index > nbrow)
@@ -237,7 +241,7 @@ void Choix(Personne (*personne)[], int index, int *nbrow){
 		printf("\t3. Retour\n");
 		printf(" > ");
 		scanf("%d", &reponse);
-		stdclean(stdin);
+		stdclean();
 
 		//Menu des choix
 		switch (reponse)
@@ -277,7 +281,7 @@ void Modification(Personne *personne){
 		printf("\t8. Retour\n");
 		printf(" > ");
 		scanf("%d", &reponse);
-		stdclean(stdin);
+		stdclean();
 
 		if (reponse < 1 || reponse > 8)
 			printf("Une erreur c'est produite, veuillez rentrez un nombre correct !");
@@ -494,7 +498,7 @@ void ModifVal(Personne *personne, int colonne){
 			i++;
 		}
 	}
-	stdclean(stdin);
+	stdclean();
 	//Assigne le caractère null a la fin de la valeur
 	OriganisationCSV(personne, colonne)[i] = '\0';
 }
@@ -527,24 +531,112 @@ char Minuscule(char lettre){
 	return lettre;
 }
 
-void Triage(Personne(*personne)[],int nbrow){
+void Tri_insertion(Personne tab[],int nbrow){
 	int j;
 	int i;
 	Personne ppt;
 	i=1;
 	while (i < nbrow-1)
 	{		
-		ppt = (*personne)[i];
+		ppt = tab[i];
 		j=i-1;
-		while (j>=0 && strcasecmp((*personne)[j].nom,ppt.nom)>0)
+		while (j>=0 && strcasecmp(tab[j].nom,ppt.nom)>0)
 		{
-			(*personne)[j+1]=(*personne)[j];
+			tab[j+1]=tab[j];
 			j=j-1;
 		}
-		(*personne)[j+1]=ppt;
+		tab[j+1]=ppt;
 		i++;
 	}
 }
+
+void Tri_selection(Personne tab[], int nbligne){
+    int i,j,ipp;
+    Personne petit;
+    i = 0;
+    while (i<nbligne-1)
+    {
+        ipp = i;
+        petit = tab[ipp];
+        j = i+1;
+        while (j<=nbligne)
+        {
+            if (strcasecmp(petit.nom, tab[j].nom) > 0)
+            {
+                ipp = j;
+                petit = tab[ipp];
+            }
+            j++;
+        }
+        tab[ipp]=tab[i];
+        tab[i]=petit;
+        i++;
+    }
+}
+
+void Tri_bulle(Personne tab[], int nbligne){
+	int i,j;
+	Personne temp;
+
+	i = nbligne-1;
+	while (i>=0){
+		j=1;
+		while (j<=i){
+			if (strcasecmp(tab[j].nom, tab[j-1].nom) < 0){
+				temp = tab [j];
+				tab [j] = tab[j-1];
+				tab [j-1] = temp;
+			}
+			j = j + 1;
+		}
+		i=i-1;
+	}
+}
+
+void Tri_indirect(Personne tab[], int indice[], int nbligne){
+	int i,j;
+	Personne petit;
+
+	for (i = 0; i < nbligne; i++)
+		indice[i] = i;
+
+	i=1;
+	while (i<nbligne){
+		petit = tab[indice[i]];
+		j=i-1;
+		while (j>=0 && strcasecmp(petit.nom,tab[indice[j]].nom)<0){
+			indice[j+1] = indice[j];
+			j=j-1;
+		}
+		indice[j+1] = i;
+		i=i+1;
+	}
+}
+
+void Tri_shell(Personne tab[],int nbligne){
+	int i,j,inversion,ecart;
+	Personne temp;
+
+    inversion = 0;
+    ecart = nbligne;
+    do {
+        ecart >>= 1;
+        do {
+            inversion = 0;
+            for(i = 0; i <= nbligne - ecart - 1; i++) {
+                j = i + ecart;
+				
+                if(strcasecmp(tab[j].prenom, tab[i].prenom) < 0) {
+                    temp = tab[i];
+                    tab[i] = tab[j];
+                    tab[j] = temp;
+                    inversion = 1;
+                }
+            }
+        } while (1 == inversion);
+    } while (1 != ecart);
+}
+
 
 void stdclean(){
 	char c = 0;
@@ -572,7 +664,7 @@ int main(){
 	char programme = 1;
 
 	OuvertureCSV(pt_info, pt_row);
-	Triage(pt_info,nbrow);
+	Tri_shell(information,nbrow);
 
 	//------------Affichage Titre------------//
 
@@ -614,7 +706,7 @@ int main(){
 				printf("\t10. Retour\n");
 				printf(" > ");
 				scanf("%d", &reponse);
-				stdclean(stdin);
+				stdclean();
 
 				printf("nbligne : %d\n",nbrow);
 
@@ -638,6 +730,13 @@ int main(){
 						}
 					} while (select != 0);
 				}
+				else if (reponse==2)
+				{
+					Manque(pt_info,nbrow);
+					Pause();
+					Clear();
+				}
+				
 				else if(reponse >=3 && reponse<=9){
 					Clear();
 					Filtre(pt_info, nbrow, reponse - 3);
