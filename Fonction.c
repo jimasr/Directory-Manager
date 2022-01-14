@@ -455,20 +455,20 @@ void Affichage(REPERTOIRE * repertoire, unsigned int index, unsigned char mode){
 		if(mode == 0){
 
 			printf("Personne %4d : ", index+1);
-			Empty(repertoire->informations[index].nom,25);
 			printf(" | ");
 			Empty(repertoire->informations[index].prenom,20);
 			printf(" | ");
-			Empty(repertoire->informations[index].profession,20);
-			printf(" | ");
-			Empty(repertoire->informations[index].tel,14);
-			printf(" | ");
-			Empty(repertoire->informations[index].email,45);
+			Empty(repertoire->informations[index].nom,25);
 			printf(" | ");
 			Empty(repertoire->informations[index].ville,25);
 			printf(" [ ");
 			Empty(repertoire->informations[index].codepostal,5);
-			printf(" ] ");
+			printf(" ]  ");
+			Empty(repertoire->informations[index].tel,14);
+			printf("  | ");
+			Empty(repertoire->informations[index].email,45);
+			printf(" | ");
+			Empty(repertoire->informations[index].profession,20);
 
 		}else{
 
