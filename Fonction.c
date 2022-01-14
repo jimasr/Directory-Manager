@@ -228,7 +228,7 @@ void OuvertureCSV(REPERTOIRE * repertoire){
 	fgets(chemin,sizeof(chemin),stdin);
 	VerifStr(chemin);
 
-	printf("\n Voulez-vous l'ouvrir en mode avance ? \n");
+	printf("\nVoulez-vous l'ouvrir en mode avance ? \n");
 	printf("\t1. Non\t");
 	printf("\t2. Oui\n");
 
@@ -240,7 +240,7 @@ void OuvertureCSV(REPERTOIRE * repertoire){
 
 	FILE *annuaire = fopen(chemin, "r+");
 	if (annuaire == NULL){
-		printf("Echec de l'ouverture du fichier\n");
+		printf("\nEchec de l'ouverture du fichier\n");
 		Pause();
 		exit(EXIT_FAILURE);
 	}
@@ -950,6 +950,8 @@ unsigned int Recherche(REPERTOIRE * repertoire){
 			while (i<repertoire->nblignes && strcasecmp(GetAdresse(&repertoire->informations[repertoire->indices[colonne][i]],colonne),autres) == 0){
 				if (strcasecmp(GetAdresse(&repertoire->informations[repertoire->indices[colonne][i]],1),nom)==0){
 					if (strcasecmp(GetAdresse(&repertoire->informations[repertoire->indices[colonne][i]],0),prenom)==0){
+						Clear();
+						printf("\n");
 						Affichage(repertoire,repertoire->indices[colonne][i],1);
 						fin = clock();
 						temps = (fin-debut) * 1000 / CLOCKS_PER_SEC;

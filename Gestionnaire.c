@@ -21,7 +21,7 @@ int main(){
 
 	while (programme == 1){
 
-		printf("Menu principale :");
+		printf("\n Menu principale :");
 
 		if (repertoire.avance == 1)
 			printf(" [ Mode avance ]\n\n - Les affichages de personnes sont desactivees pour un calcul precis des temps d'executions -");
@@ -51,7 +51,7 @@ int main(){
 			case 2:
 
 				Clear();
-				printf("Menu de recherche :\n\n");
+				printf("\n Menu de recherche :\n\n");
 				printf("\t 1. Par Index\n");
 				printf("\t 2. Valeurs Multiples\n");
 				printf("\t 3. Valeurs Manquantes\n");
