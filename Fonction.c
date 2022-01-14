@@ -6,6 +6,18 @@
 
 #define nbcolonne 7
 
+void Pause(){
+	printf("\n");
+	#if __APPLE__
+		system("echo - Appuyez sur une touche -");
+		system("read touche");
+	#elif _WIN32 || _WIN64
+		system("Pause. >nul | echo  - Appuyez sur une touche -");
+	#elif unix
+		system('read -n1 -r -p " - Appuyez sur un touche " - ');
+	#endif
+}
+
 char * GetAdresse(PERSONNE * personne, unsigned char colonne){
 	switch (colonne){
 		case 0:
@@ -24,6 +36,7 @@ char * GetAdresse(PERSONNE * personne, unsigned char colonne){
 			return personne->profession;
 		default:
 			printf("La recuperation de cette adresse est impossible ! [colonne %d non renseigne dans la structure]\n",colonne);
+			Pause();
 			exit(EXIT_FAILURE);
 	}
 }
@@ -53,6 +66,7 @@ void SetAdresse(PERSONNE * personne, unsigned char colonne, char * adresse){
 			break;
 		default:
 			printf("L'assignation de cette adresse est impossible ! [colonne %d non renseigne dans la structure]\n",colonne);
+			Pause();
 			exit(EXIT_FAILURE);
 	}
 }
@@ -82,6 +96,7 @@ void GetColonne(unsigned char colonne){
 			break;
 		default:
 			printf("L'affichage du nom de la colonne est impossible ! [colonne %d non renseigne dans la structure]\n",colonne);
+			Pause();
 			exit(EXIT_FAILURE);
 	}
 }
@@ -226,6 +241,7 @@ void OuvertureCSV(REPERTOIRE * repertoire){
 	FILE *annuaire = fopen(chemin, "r+");
 	if (annuaire == NULL){
 		printf("Echec de l'ouverture du fichier\n");
+		Pause();
 		exit(EXIT_FAILURE);
 	}
 
@@ -237,6 +253,7 @@ void OuvertureCSV(REPERTOIRE * repertoire){
 	
 	if (repertoire->informations == NULL){
 		printf("Echec de l'allocation du tableau d'informations !\n");
+		Pause();
 		exit(EXIT_FAILURE);
 	}
 
@@ -257,6 +274,7 @@ void OuvertureCSV(REPERTOIRE * repertoire){
 				SetAdresse(&repertoire->informations[repertoire->nblignes],column,strdup(&ligne[j]));
 				if (GetAdresse(&repertoire->informations[repertoire->nblignes],column) == NULL){
 					printf("Echec de l'allocation d'une valeur !\n");
+					Pause();
 					exit(EXIT_FAILURE);
 				}
 				j=i+1;
@@ -282,6 +300,7 @@ void InitSort(REPERTOIRE * repertoire){
 	repertoire->indices = malloc(sizeof(int *)*nbcolonne);
 	if(repertoire->indices == NULL){
 		printf("Echec de l'allocation ! [indices]\n");
+		Pause();
 		exit(EXIT_FAILURE);
 	}
 
@@ -521,6 +540,7 @@ void ModifVal(PERSONNE * personne, unsigned char colonne){
 	SetAdresse(personne,colonne,realloc(GetAdresse(personne,colonne),sizeof(char)*(strlen(buffer)+1)));
 	if(GetAdresse(personne,colonne) == NULL){
 		printf("Echec de la reallocation d'une donnee de la personne!\n");
+		Pause();
 		exit(EXIT_FAILURE);
 	}
 	strcpy(GetAdresse(personne,colonne),buffer);
@@ -552,6 +572,7 @@ void Ajout(REPERTOIRE * repertoire){
 		repertoire->informations = realloc(repertoire->informations, (repertoire->nblignes + 1 ) * sizeof(PERSONNE));
 		if (repertoire->informations == NULL){
 			printf("Echec de la reallocation d'une nouvelle personne !\n");
+			Pause();
 			exit(EXIT_FAILURE);
 		}
 
@@ -561,6 +582,7 @@ void Ajout(REPERTOIRE * repertoire){
 			repertoire->indices[i] = realloc(repertoire->indices[i],(repertoire->nblignes + 1 ) * sizeof(int *));
 			if (repertoire->indices[i] == NULL){
 				printf("Echec de la reallocation du tableau d'indices !\n");
+				Pause();
 				exit(EXIT_FAILURE);
 			}
 			repertoire->indices[i][repertoire->nblignes]=repertoire->nblignes;
@@ -581,6 +603,7 @@ void Ajout(REPERTOIRE * repertoire){
 		SetAdresse(&repertoire->informations[repertoire->nblignes],i,strdup(buffer));
 		if(GetAdresse(&repertoire->informations[repertoire->nblignes],i) == NULL){
 			printf("Echec de l'allocation  d'une donnee de la personne !\n");
+			Pause();
 			exit(EXIT_FAILURE);
 		}
 
@@ -604,6 +627,7 @@ void Sauvegarde(REPERTOIRE * repertoire){
 	FILE * sauvegarde = fopen(buffer, "w");
 	if (sauvegarde == NULL){
 		printf("Echec de le l'ouverture du fichier de sauvegarde !\n");
+		Pause();
 		exit(EXIT_FAILURE);
 	}
 	
@@ -611,11 +635,13 @@ void Sauvegarde(REPERTOIRE * repertoire){
 		for (colonne = 0; colonne < nbcolonne-1; colonne++){
 			if (fprintf(sauvegarde,"%s,",GetAdresse(&repertoire->informations[ligne],colonne)) == 0){
 				printf("Echec de l'ecriture dans le fichier de sauvegarde ! [Valeur intermediaire]\n");
+				Pause();
 				exit(EXIT_FAILURE);
 			}
 		}
 		if(fprintf(sauvegarde,"%s\n",GetAdresse(&repertoire->informations[ligne],colonne)) == 0){
 			printf("Echec de l'ecriture dans le fichier de sauvegarde ! [Valeur finale]\n");
+			Pause();
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -940,16 +966,4 @@ unsigned int Recherche(REPERTOIRE * repertoire){
 		printf("Aucune correspondance trouvee !\n");
 	}
 	return repertoire->nblignes;
-}
-
-void Pause(){
-	printf("\n");
-	#if __APPLE__
-		system("echo - Appuyez sur une touche -");
-		system("read touche");
-	#elif _WIN32 || _WIN64
-		system("Pause. >nul | echo  - Appuyez sur une touche -");
-	#elif unix
-		system('read -n1 -r -p " - Appuyez sur un touche " - ');
-	#endif
 }
