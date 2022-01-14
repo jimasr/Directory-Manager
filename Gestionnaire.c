@@ -16,8 +16,6 @@ int main(){
 
 	OuvertureCSV(&repertoire);
 
-	Clear();
-
 	InitSort(&repertoire);
 	ShellSort(&repertoire);
 

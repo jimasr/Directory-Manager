@@ -81,7 +81,7 @@ void GetColonne(unsigned char colonne){
 			printf("Profession");
 			break;
 		default:
-			printf("L'affichage du nom de la colonne est impossible! [colonne %d non renseigne dans la structure]\n",colonne);
+			printf("L'affichage du nom de la colonne est impossible ! [colonne %d non renseigne dans la structure]\n",colonne);
 			exit(EXIT_FAILURE);
 	}
 }
@@ -92,6 +92,14 @@ void StdClear(){
 		cara = getchar();
 }
 
+void Clear(){
+	#if _WIN32 || _WIN64
+		system("cls");
+	#else
+		system("clear");
+	#endif
+}
+
 unsigned int Select(unsigned int debut,unsigned int fin){
 	unsigned int reponse;
 	do{
@@ -99,7 +107,7 @@ unsigned int Select(unsigned int debut,unsigned int fin){
 		scanf("%d",&reponse);
 		StdClear();
 		if (reponse<debut || reponse>fin)
-			printf("Veuillez rentrer un nombre correcte !\n");
+			printf("Veuillez rentrer un nombre correct  !\n");
 	} while (reponse<debut || reponse>fin);
 	return reponse;
 }
@@ -121,9 +129,77 @@ void VerifStr(char * chaine){
 		StdClear();
 }
 
+void VerifPattern(char * chaine , unsigned char colonne ,unsigned int limite){
+	unsigned char verif;
+	unsigned int taille;
+	unsigned int i;
+	do{
+		taille = strlen(chaine);
+		verif = 1;
+		if (taille!=0){	
+			i = 0;
+			if(colonne == 3 || colonne == 4){
+				if(colonne == 3 && taille != 5){
+					verif = 0;
+					printf("\tNombre de caracteres invalide [ format : XXXXX ] > ");
+				}
+
+				if(colonne == 4 && taille != 14){
+					verif = 0;
+					printf("\tNombre de caracteres invalide [ format : XX.XX.XX.XX.XX ] > ");
+				}
+
+				while(i < taille && verif == 1){
+					switch (colonne) {
+						case 3:
+							if (chaine[i]>'9' || chaine[i]<'0'){
+								verif = 0;
+								printf("\tRentrer uniquement des entiers [ XXXXX ] > ");
+							}
+							break;
+						case 4:
+							if((i+1)%3 == 0){
+								if (chaine[i] != '.'){
+									verif = 0;
+									printf("\tFormat incorrect [ XX.XX.XX.XX.XX ] > ");
+								}
+							}
+							else if (chaine[i]>'9' || chaine[i]<'0'){
+								printf("\tRentrer uniquement des entiers [ XX.XX.XX.XX.XX ] > ");
+								verif = 0;
+							}
+							break;
+					}
+					i++;
+				}
+			}else if (colonne == 5){
+				i = 0;
+				verif = 0;
+				while(i < taille){
+					if (chaine[i]=='@')
+						verif++;
+					i++;
+				}
+				if (verif == 0)
+					printf("\tUn @ est necessaire dans un email > ");
+				if (verif > 1){
+					printf("\tUn email contient seulement un @ > ");
+					verif = 0;
+				}
+			}
+
+			if(verif==0){
+				fgets(chaine,limite,stdin);
+				VerifStr(chaine);
+			}
+		}
+
+	}while(verif == 0);
+}
+
 void OuvertureCSV(REPERTOIRE * repertoire){
 
-	char ligne[256];
+	char ligne[300];
 	char chemin[100];
 
 	char unsigned i,j = 0;
@@ -137,12 +213,11 @@ void OuvertureCSV(REPERTOIRE * repertoire){
 	fgets(chemin,sizeof(chemin),stdin);
 	VerifStr(chemin);
 
-	printf("\n Voulez vous l'ouvrir en mode avance ? \n");
+	printf("\n Voulez-vous l'ouvrir en mode avance ? \n");
 	printf("\t1. Non\t");
 	printf("\t2. Oui\n");
 
 	repertoire->avance=Select(1,2)-1;
-
 
 	repertoire->chemin = strdup(chemin);
 	
@@ -161,7 +236,7 @@ void OuvertureCSV(REPERTOIRE * repertoire){
 	repertoire->informations = malloc(repertoire->nblignes * sizeof(PERSONNE));
 	
 	if (repertoire->informations == NULL){
-		printf("Echec de l'attribution ! [informations]\n");
+		printf("Echec de l'allocation du tableau d'informations !\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -196,6 +271,8 @@ void OuvertureCSV(REPERTOIRE * repertoire){
 	fin = clock();
 	temps = (fin-debut) * 1000 / CLOCKS_PER_SEC;
 
+	Clear();
+
 	if (repertoire->avance==1)
 		printf("\nOuverture du Fichier - [ Succes | %ld ms]\n",temps);
 }
@@ -224,30 +301,36 @@ void InsertSort(REPERTOIRE * repertoire){
 	clock_t fin;
 	unsigned long temps; 
 
-	if(repertoire->avance == 1)
-		printf("Replacement par tri insertion indirect sur %d colonnes :\n",nbcolonne);
+	if(repertoire->nblignes > 0){
 
-	for (unsigned char column = 0; column < nbcolonne; column++){
-		i=1;
-		debut = clock();
-		while (i<repertoire->nblignes){
-			petit = repertoire->indices[column][i];
-			j=i-1;
-			
-			while (j>=0 && strcasecmp(GetAdresse(&repertoire->informations[petit],column),
-									  GetAdresse(&repertoire->informations[repertoire->indices[column][j]],column))<0){
-				repertoire->indices[column][j+1] = repertoire->indices[column][j];
-				j--;
+		if(repertoire->avance == 1)
+			printf("Replacement par tri insertion indirecte sur %d colonnes :\n",nbcolonne);
+
+		for (unsigned char column = 0; column < nbcolonne; column++){
+			i=1;
+			debut = clock();
+			while (i<repertoire->nblignes){
+				petit = repertoire->indices[column][i];
+				j=i-1;
+				
+				while (j>=0 && strcasecmp(GetAdresse(&repertoire->informations[petit],column),
+										GetAdresse(&repertoire->informations[repertoire->indices[column][j]],column))<0){
+					repertoire->indices[column][j+1] = repertoire->indices[column][j];
+					j--;
+				}
+				repertoire->indices[column][j+1] = petit;
+				i++;
 			}
-			repertoire->indices[column][j+1] = petit;
-			i++;
-		}
-		if(repertoire->avance == 1){
-			fin = clock();
-			temps = (fin-debut) * 1000 / CLOCKS_PER_SEC;
-			printf("\tTri colonne %d : %ld ms\n",column+1,temps);
+			if(repertoire->avance == 1){
+				fin = clock();
+				temps = (fin-debut) * 1000 / CLOCKS_PER_SEC;
+				printf("\tTri colonne %d : %ld ms\n",column+1,temps);
+			}
 		}
 	}
+	else		
+		if(repertoire->avance == 1)
+			printf("L'annuaire ne peut pas etre trie car il est vide\n");
 }
 
 void ShellSort(REPERTOIRE * repertoire){
@@ -259,39 +342,46 @@ void ShellSort(REPERTOIRE * repertoire){
 	clock_t fin;
 	unsigned long temps; 
 
-	if(repertoire->avance == 1)
-		printf("\n- Tri shell indirect sur %d colonnes :\n",nbcolonne);
+	if(repertoire->nblignes > 0){
+	
+		if(repertoire->avance == 1)
+			printf("\n- Tri shell indirect sur %d colonnes :\n",nbcolonne);
 
-	for (unsigned char column = 0; column < nbcolonne; column++){
-		debut = clock();
-		interval = repertoire->nblignes / 2;
-		while (interval>0)
-		{	
-			i=interval;
-			while (i<repertoire->nblignes){
-				petit = repertoire->indices[column][i];
-				j=i;
-				
-				while (j>=interval && strcasecmp( GetAdresse(&repertoire->informations[repertoire->indices[column][j-interval]],column),
-												  GetAdresse(&repertoire->informations[petit],column)) > 0){
+		for (unsigned char column = 0; column < nbcolonne; column++){
+			debut = clock();
+			interval = repertoire->nblignes / 2;
+			while (interval>0)
+			{	
+				i=interval;
+				while (i<repertoire->nblignes){
+					petit = repertoire->indices[column][i];
+					j=i;
+					
+					while (j>=interval && strcasecmp( GetAdresse(&repertoire->informations[repertoire->indices[column][j-interval]],column),
+													GetAdresse(&repertoire->informations[petit],column)) > 0){
 
-					repertoire->indices[column][j]=repertoire->indices[column][j-interval];
-					j=j-interval;
+						repertoire->indices[column][j]=repertoire->indices[column][j-interval];
+						j=j-interval;
+					}
+					repertoire->indices[column][j]=petit;
+					
+					i++; 
 				}
-				repertoire->indices[column][j]=petit;
-				
-				i++; 
+				interval = interval/2;
 			}
-			interval = interval/2;
+			if(repertoire->avance == 1){
+				fin = clock();
+				temps = (fin-debut) * 1000 / CLOCKS_PER_SEC;
+				printf("\tTri colonne %d : %ld ms\n",column+1,temps);
+			}
 		}
-		if(repertoire->avance == 1){
-			fin = clock();
-			temps = (fin-debut) * 1000 / CLOCKS_PER_SEC;
-			printf("\tTri colonne %d : %ld ms\n",column+1,temps);
-		}
+		if(repertoire->avance == 1)
+			printf("\n");
 	}
-	if(repertoire->avance == 1)
-		printf("\n");
+	else		
+		if(repertoire->avance == 1)
+			printf("L'annuaire ne peut pas etre trie car il est vide\n");
+
 }
 
 int VerifTri(REPERTOIRE * repertoire){
@@ -312,16 +402,9 @@ void MemoryCls(REPERTOIRE * repertoire){
 	}
 	free(repertoire->informations);
 	free(repertoire->indices);
+	free(repertoire->chemin);
 	if(repertoire->avance==1)
 		printf("\nNettoyage de la memoire - [ Succes ]\n");
-}
-
-void Clear(){
-	#if _WIN32 || _WIN64
-		system("cls");
-	#else
-		system("clear");
-	#endif
 }
 
 void Empty(char * chaine, unsigned char formatage){
@@ -370,7 +453,7 @@ void Affichage(REPERTOIRE * repertoire, unsigned int index, unsigned char mode){
 
 		}else{
 
-			printf("\nInformation sur la personne %d :\n\n", index+1);
+			printf("\nInformations sur la personne %d :\n\n", index+1);
 
 			printf("Nom : ");
 			Empty(repertoire->informations[index].nom,0);
@@ -424,6 +507,7 @@ void ModifVal(PERSONNE * personne, unsigned char colonne){
 
 	fgets(buffer,sizeof(buffer),stdin);
 	VerifStr(buffer);
+	VerifPattern(buffer, colonne,sizeof(buffer));
 
 	SetAdresse(personne,colonne,realloc(GetAdresse(personne,colonne),sizeof(char)*(strlen(buffer)+1)));
 	if(GetAdresse(personne,colonne) == NULL){
@@ -479,15 +563,16 @@ void Ajout(REPERTOIRE * repertoire){
 
 	printf("\n - Creation d'une nouvelle personne -\n\n");
 
-	for (int i = 0; i < nbcolonne; i++){
+	for (unsigned char i = 0; i < nbcolonne; i++){
 		GetColonne(i);
 		printf(" : ");
 		fgets(buffer,sizeof(buffer),stdin);
 		VerifStr(buffer);
+		VerifPattern(buffer,i,sizeof(buffer));
 
 		SetAdresse(&repertoire->informations[repertoire->nblignes],i,strdup(buffer));
 		if(GetAdresse(&repertoire->informations[repertoire->nblignes],i) == NULL){
-			printf("Echec de l'alloccation d'une donnee de la personne!\n");
+			printf("Echec de l'allocation  d'une donnee de la personne !\n");
 			exit(EXIT_FAILURE);
 		}
 
@@ -504,7 +589,7 @@ void Sauvegarde(REPERTOIRE * repertoire){
 	unsigned char colonne;
 	unsigned int ligne;
 
-	printf("Veuillez rentrez le nom du fichier de sauvegarde : ");
+	printf("Veuillez rentrer le nom du fichier de sauvegarde : ");
 	fgets(buffer,sizeof(buffer),stdin);
 	VerifStr(buffer);
 
@@ -555,7 +640,10 @@ unsigned char MissingData(REPERTOIRE * repertoire){
 	printf("\n Temps de recherche [ Elements Manquants ] : %ld ms\n",temps);
 
 	if (compteur>0){
-		printf("\n\t - %d correspondances trouvees -\n\n",compteur);
+		printf("\n\t - %d personnes avec des donnees manquantes trouvees ",compteur);
+		if (repertoire->nblignes>0)
+			printf(" [%d %% de l'annuaire] -", compteur * 100 / repertoire->nblignes);
+		printf("\n\n");
 		return 1;
 	}
 	printf("\n\t - Aucune correspondances trouvees -\n\n");
@@ -687,22 +775,22 @@ unsigned char Filtre(REPERTOIRE * repertoire, unsigned char colonne){
 		printf(" : ");
 		fgets(filtre,sizeof(filtre),stdin);
 		VerifStr(filtre);
-		strlwr(filtre);
 		printf("\n");
 
 		taille = strlen(filtre);
 
 		if (taille == 0){
+			Clear();
 			printf("Veuillez rentrer un filtre correct !\n");
 		}
 	}while (taille==0);
 
 	/*
-		Type 0 [*]     : [ Non Compatiable recherche optimisee ] : Affiche tous les lignes
-		Type 1 [...]   : [   Compatiable recherche optimisee   ] : Affiche les personnes avec des informations qui correspondent au filtre
-		Type 2 [*...]  : [ Non Compatiable recherche optimisee ] : Affiche les personnes avec des infromations qui commencent par le filtre
-		Type 3 [...*]  : [   Compatiable recherche optimisee   ] : Affiche les personnes avec des informations qui finissent par le filtre
-		Type 4 [*...*] : [ Non Compatiable recherche optimisee ] :  Affiche les personnes avec des informations qui contiennent le filtre
+		Type 0 [*]     : [ Non Compatiable recherche optimisée ] : Affiche tous les lignes
+		Type 1 [...]   : [   Compatiable recherche optimisée   ] : Affiche les personnes avec des informations qui correspondent au filtre
+		Type 2 [*...]  : [ Non Compatiable recherche optimisée ] : Affiche les personnes avec des informations qui commencent par le filtre
+		Type 3 [...*]  : [   Compatiable recherche optimisée   ] : Affiche les personnes avec des informations qui finissent par le filtre
+		Type 4 [*...*] : [ Non Compatiable recherche optimisée ] : Affiche les personnes avec des informations qui contiennent le filtre
 	*/
 
 	type = 1;
