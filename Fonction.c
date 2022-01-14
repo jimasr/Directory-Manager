@@ -488,6 +488,8 @@ void Suppression(REPERTOIRE * repertoire, unsigned int index){
 
 		repertoire->nblignes -= 1;
 		repertoire->informations[index] = repertoire->informations[repertoire->nblignes];
+		for (unsigned char i; i<nbcolonne ; i++)
+			 GetAdresse(&repertoire->informations[repertoire->nblignes],i)[0] = '\0';
 
 		printf("\tPersonne correctement supprimee\n");
 
@@ -642,7 +644,7 @@ unsigned char MissingData(REPERTOIRE * repertoire){
 	if (compteur>0){
 		printf("\n\t - %d personnes avec des donnees manquantes trouvees ",compteur);
 		if (repertoire->nblignes>0)
-			printf(" [%d %% de l'annuaire] -", compteur * 100 / repertoire->nblignes);
+			printf(" [%.1f %% de l'annuaire] -", compteur * 100. / repertoire->nblignes);
 		printf("\n\n");
 		return 1;
 	}
@@ -817,7 +819,7 @@ unsigned char Filtre(REPERTOIRE * repertoire, unsigned char colonne){
 	if (type == 1){
 		indice = DicoSearch(repertoire,colonne,filtre);
 		if (indice!=repertoire->nblignes)
-			while (indice<repertoire->nblignes && strcasecmp(GetAdresse(&repertoire->informations[repertoire->indices[colonne][indice]],colonne),filtre) == 0){
+			while ( indice < repertoire->nblignes && indice<repertoire->nblignes && strcasecmp(GetAdresse(&repertoire->informations[repertoire->indices[colonne][indice]],colonne),filtre) == 0){
 				Affichage(repertoire,repertoire->indices[colonne][indice],0);
 				compteur += 1;
 				indice += 1;
@@ -826,7 +828,7 @@ unsigned char Filtre(REPERTOIRE * repertoire, unsigned char colonne){
 	else if (type == 3){
 		indice = DicoSearchLimit(repertoire,colonne,filtre,taille);
 		if (indice!=repertoire->nblignes)
-			while (indice<repertoire->nblignes && strncasecmp(GetAdresse(&repertoire->informations[repertoire->indices[colonne][indice]],colonne),filtre,taille) == 0){
+			while (indice < repertoire->nblignes && indice<repertoire->nblignes && strncasecmp(GetAdresse(&repertoire->informations[repertoire->indices[colonne][indice]],colonne),filtre,taille) == 0){
 				Affichage(repertoire,repertoire->indices[colonne][indice],0);
 				compteur += 1;
 				indice += 1;
@@ -872,7 +874,7 @@ unsigned char Filtre(REPERTOIRE * repertoire, unsigned char colonne){
 	return 0;
 }
 
-unsigned char Recherche(REPERTOIRE * repertoire){
+unsigned int Recherche(REPERTOIRE * repertoire){
 	unsigned int i;
 	unsigned int colonne;
 	int reponse;
@@ -920,7 +922,7 @@ unsigned char Recherche(REPERTOIRE * repertoire){
 						fin = clock();
 						temps = (fin-debut) * 1000 / CLOCKS_PER_SEC;
 						printf("\n Temps de recherche [filtre] : %ld ms\n",temps);
-						return 1;
+						return repertoire->indices[colonne][i];
 					}
 				}
 				i++;
@@ -931,7 +933,7 @@ unsigned char Recherche(REPERTOIRE * repertoire){
 		printf("\n Temps de recherche [filtre] : %ld ms\n",temps);
 		printf("Aucune correspondance trouvee !\n");
 	}
-	return 0;
+	return repertoire->nblignes;
 }
 
 void Pause(){

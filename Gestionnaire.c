@@ -83,8 +83,13 @@ int main(){
 					}
 				}
 
-				if (reponse ==  2)
-					correspondance = Recherche(&repertoire);
+				if (reponse ==  2){
+					reponse = Recherche(&repertoire);
+					if (reponse == repertoire.nblignes) 
+						correspondance=0;
+					else
+						correspondance = 2;
+				}
 
 				if (reponse ==  3)
 					correspondance = MissingData(&repertoire);
@@ -127,6 +132,7 @@ int main(){
 							break;
 						case 3:
 							break;
+							printf("Retour au menu principal\n");
 						default:
 							printf("Incoherence dans le choix de modification\n");
 						}

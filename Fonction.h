@@ -100,12 +100,13 @@ unsigned char Filtre(REPERTOIRE * repertoire, unsigned char colonne);
 
 /**
 : Entree repertoire : adresse d'une structure de type REPERTOIRE
-: Sortie indication : unsigned char
-: Postcondition     : demande à l'utilisateur 3 valeurs a chercher et affiche la personne s'il y a une correspondance
+: Sortie indication : unsigned int
+: Postcondition     : demande à l'utilisateur 3 valeurs a chercher et affiche la personne s'il y a une correspondance et retourne l'indice la personne
+: 					: retourne le nombre de lignes s'il n'y en a pas
 */
-unsigned char Recherche(REPERTOIRE * repertoire);
+unsigned int Recherche(REPERTOIRE * repertoire);
 
-/**
+/**²²
 : Entree repertoire   : adresse d'une structure de type REPERTOIRE
 : Sortie indication   : unsigned char
 : Postcondition       : affiche toutes les personnes avec des données manquantes
