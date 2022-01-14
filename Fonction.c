@@ -395,7 +395,7 @@ int VerifTri(REPERTOIRE * repertoire){
 
 void MemoryCls(REPERTOIRE * repertoire){
 	for (unsigned int colonne = 0; colonne < nbcolonne; colonne++)	{
-		for (unsigned int ligne = 0; ligne < repertoire->nblignes; ligne++){
+		for (unsigned int ligne = 0; ligne < repertoire->nballoc; ligne++){
 			free(GetAdresse(&repertoire->informations[ligne],colonne));	
 		}
 		free(repertoire->indices[colonne]);	
@@ -484,10 +484,17 @@ void Affichage(REPERTOIRE * repertoire, unsigned int index, unsigned char mode){
 }
 
 void Suppression(REPERTOIRE * repertoire, unsigned int index){
+
+	PERSONNE swap;
+
 	if (repertoire->nblignes>0){
 
 		repertoire->nblignes -= 1;
+
+		swap = repertoire->informations[index];
 		repertoire->informations[index] = repertoire->informations[repertoire->nblignes];
+		repertoire->informations[repertoire->nblignes] = swap;
+
 		for (unsigned char i; i<nbcolonne ; i++)
 			 GetAdresse(&repertoire->informations[repertoire->nblignes],i)[0] = '\0';
 
@@ -535,7 +542,6 @@ void Modification(REPERTOIRE * repertoire, unsigned int index){
 		InsertSort(repertoire);
 	}else
 		printf("Aucune personne renseignee\n");
-	
 }
 
 void Ajout(REPERTOIRE * repertoire){
