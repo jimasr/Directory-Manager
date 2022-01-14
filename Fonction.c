@@ -313,7 +313,8 @@ void InitSort(REPERTOIRE * repertoire){
 }
 
 void InsertSort(REPERTOIRE * repertoire){
-	int i,j;
+	unsigned int i;
+	int j;
 	int petit;
 
 	clock_t debut;

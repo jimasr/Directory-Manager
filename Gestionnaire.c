@@ -131,8 +131,8 @@ int main(){
 							Modification(&repertoire,reponse);
 							break;
 						case 3:
-							break;
 							printf("Retour au menu principal\n");
+							break;
 						default:
 							printf("Incoherence dans le choix de modification\n");
 						}
