@@ -106,7 +106,7 @@ int main(){
 		
 				if (correspondance > 0){
 					if (correspondance == 1){
-						printf("Selectionnez l'ID de la personne que vous voulez selectionner [0 pour quitter]");
+						printf("Selectionnez l'ID de la personne que vous voulez [0 pour quitter]");
 						reponse = Select(0,repertoire.nblignes);
 						if(reponse==0)
 							correspondance=0;
@@ -119,7 +119,7 @@ int main(){
 					}
 					if(correspondance > 0){
 
-						printf("\nQue voulez vous faire : \n");
+						printf("\nQue voulez-vous faire : \n");
 						printf("\t1. Supprimer\n");
 						printf("\t2. Modifier\n");
 						printf("\t3. Quitter\n");

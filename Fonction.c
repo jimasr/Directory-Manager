@@ -876,7 +876,7 @@ unsigned char Filtre(REPERTOIRE * repertoire, unsigned char colonne){
 		printf("\n\t - %d correspondances trouvees -\n\n",compteur);
 		return 1;
 	}
-	printf("\n\n\t - Aucune correspondances trouvees -\n\n");
+	printf("\n\n\t - Aucune correspondance trouvee -\n\n");
 	return 0;
 }
 
