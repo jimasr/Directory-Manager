@@ -8,5 +8,7 @@ Prerequisites
 ## Authors
 
 ## License
+Copyright (c) Lilian BAUDRY / Hazim ASRI . All rights reserved.
 
+Licensed under the [MIT License](https://github.com/microsoft/calculator/blob/master/LICENSE)
 ## 
