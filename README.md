@@ -6,8 +6,8 @@ An insight on what C programming can do! Check out our first semester project of
 ## Usage
 ### 
 ## Authors
-[Lilian Baudry](
-[Hazim ASRI](
+[Lilian Baudry](https://github.com/Irophin)  
+[Hazim ASRI](https://github.com/wockehs001)
 ## License
 Copyright (c) Lilian BAUDRY / Hazim ASRI . All rights reserved.
 
