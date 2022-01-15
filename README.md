@@ -3,7 +3,7 @@ An insight on what C programming can do! Check out our first semester project of
 
 ## Getting Started
 Git clone the project :  
-`https://github.com/Irophin/SAE-C.git`  
+```https://github.com/Irophin/SAE-C.git```  
 An executable file __Gestionnaire.exe__ is already included in the package. To execute the file according to your OS : 
 
 Windows :   
