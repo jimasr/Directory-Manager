@@ -6,16 +6,16 @@
 
 #define nbcolonne 7
 
+void StdClear(){
+	char cara = 0;
+	while (cara != '\n' && cara != EOF)
+		cara = getchar();
+}
+
 void Pause(){
-	printf("\n");
-	#if __APPLE__
-		system("echo - Appuyez sur une touche -");
-		system("read touche");
-	#elif _WIN32 || _WIN64
-		system("Pause. >nul | echo  - Appuyez sur une touche -");
-	#elif unix
-		system('read -n1 -r -p " - Appuyez sur un touche " - ');
-	#endif
+	printf("\n\t- Appuyez sur entree pour continuer - ");
+	if (getchar() != '\n')
+		StdClear();
 }
 
 char * GetAdresse(PERSONNE * personne, unsigned char colonne){
@@ -101,12 +101,6 @@ void GetColonne(unsigned char colonne){
 	}
 }
 
-void StdClear(){
-	char cara = 0;
-	while (cara != '\n' && cara != EOF)
-		cara = getchar();
-}
-
 void Clear(){
 	#if _WIN32 || _WIN64
 		system("cls");
@@ -129,7 +123,7 @@ unsigned int Select(unsigned int debut,unsigned int fin){
 
 void VerifStr(char * chaine){
 	char buffer = 1;
-	unsigned int i;
+	unsigned int i=0;
 	
 	while(chaine[i]!='\0'){
 		if(chaine[i] == '\n'){
