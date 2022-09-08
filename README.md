@@ -137,7 +137,7 @@ Users can exit the program any time by using (7). The failure in manually saving
 
 ## Authors
 [Lilian Baudry](https://github.com/BaudryLilian)  
-[Hazim ASRI](https://github.com/wockehs001)
+[Hazim ASRI](https://github.com/jimasr)
 ## Licence
 Copyright (c) Lilian BAUDRY / Hazim ASRI . All rights reserved.
 
